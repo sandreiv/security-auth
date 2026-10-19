@@ -1,0 +1,7 @@
+plugins {
+	// Permite que Gradle descargue automáticamente el JDK del toolchain (Java 17)
+	// cuando no encuentra uno compatible instalado localmente.
+	id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'security-auth-service'

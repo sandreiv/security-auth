@@ -1,0 +1,8 @@
+.idea/
+.gradle/
+build/
+bin/
+*.class
+application-local.properties
+vortal/
+security-auth-1.0.tar

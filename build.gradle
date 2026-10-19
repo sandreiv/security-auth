@@ -1,0 +1,58 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.app.ies.security'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+	/* Con esta dependencia asegura los endpoints*/
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+  	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+
+    // OAuth2 Authorization Server (Spring Boot 4.0): convierte a SecurityAuth en
+    // emisor OAuth2/OIDC estándar (endpoints /oauth2/authorize, /oauth2/token, /oauth2/jwks, etc.).
+    // La versión la gestiona el BOM de Spring Boot (alineada con Spring Security).
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-authorization-server'
+
+	implementation "org.mapstruct:mapstruct:1.6.3"
+	annotationProcessor "org.mapstruct:mapstruct-processor:1.6.3"
+
+	// caffeine
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

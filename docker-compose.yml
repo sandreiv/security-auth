@@ -1,0 +1,8 @@
+services:
+  security-auth:
+    image: security-auth:1.0
+    container_name: security-auth
+    ports:
+      # Host 8171 -> contenedor 9000 (la app sigue escuchando en 9000 dentro)
+      - "8171:9000"
+    restart: unless-stopped
