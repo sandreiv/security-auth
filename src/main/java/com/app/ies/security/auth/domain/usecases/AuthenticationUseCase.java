@@ -46,56 +46,42 @@ public class AuthenticationUseCase implements AuthenticationServicePort {
         UserAuth user = userAuthPersistencePort.findByUsername(username).orElseThrow( () -> new AccessDeniedException("Credenciales Inválidas") );
         List<Rol> roles = rolPersistencePort.rolesPorUsuario(user.getId());
 
-        if(roles.isEmpty() || roles == null) {
+        if(roles == null || roles.isEmpty()) {
             throw new AccessDeniedException("El usuario no tiene roles asignados");
         }
         List<String> rolesString = roles.stream()
                 .map(Rol::getNombre)
                 .toList();
 
-        // Lo que obtuve hace match con el password del usuario? Verifico con el passwordEncoderPort
         if(!passwordEncoderPort.matches(password, user.getPassword(), String.valueOf(user.getId()), user.getIdPersona()) ) {
             throw new AccessDeniedException("Credenciales Inválidas");
         }
-        // obtener aplicaciones con roles por usuario y generar token con esa estructura
         List<AplicacionRoles> aplicacionesRoles = rolPersistencePort.aplicacionesRolesPorUsuario(user.getId());
         String token = tokenProviderPort.generateToken(
                 user, rolesString, aplicacionesRoles);
-        //RefreshToken refreshToken = tokenProviderPort.getRefreshToken(user.getId());
-        //refreshTokenPersistencePort.save(refreshToken);
+        RefreshToken refreshToken = tokenProviderPort.getRefreshToken(user.getId());
+        refreshTokenPersistencePort.save(refreshToken);
 
-        //return new Token(token, "refreshToken.getRefreshToken()", "Bearer", user.getUsername());
-        return new Token(token, "refreshToken.getRefreshToken()", "Bearer");
+        return new Token(token, refreshToken.getRefreshToken(), "Bearer");
 
     }
 
     @Override
     public Token refreshToken(String refreshToken) {
+        RefreshToken storedToken = resolveStoredToken(refreshToken);
 
-        String[] arrayRefreshToken = refreshToken.split("\\.");
-        if(arrayRefreshToken.length != 2) {
+        if (storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new UnauthorizedException("Refresh token invalido");
         }
-        String secretToken = arrayRefreshToken[0];
-        String publicToken = arrayRefreshToken[1];
-        RefreshToken token = refreshTokenPersistencePort.findByTokenId(publicToken).orElseThrow( () -> new UnauthorizedException("Refresh token invalido"));
 
-        if(!passwordEncoderPort.matches(secretToken, token.getRefreshTokenHash(), null, null)) {
+        if (Boolean.TRUE.equals(storedToken.getHasRevoked())
+                || !refreshTokenPersistencePort.consume(storedToken.getId())) {
+            refreshTokenPersistencePort.revokeAllByUserId(storedToken.getIdUser());
             throw new UnauthorizedException("Refresh token invalido");
         }
-        if(token.getExpiresAt().isBefore(LocalDateTime.now())){
-            throw new UnauthorizedException("Refresh token invalido");
-        }
-        if(token.getHasRevoked()){
-            throw new UnauthorizedException("Refresh token invalido");
-        }
-        if(token.getLastUsedAt() != null) {
-            throw new UnauthorizedException("Refresh token invalido");
-        }
-        UserAuth userAuth = userAuthPersistencePort.findById(token.getIdUser()).orElseThrow( () -> new UnauthorizedException("Token invalido"));
 
-        token.setLastUsedAt(LocalDateTime.now());
-        refreshTokenPersistencePort.save(token);
+        UserAuth userAuth = userAuthPersistencePort.findById(storedToken.getIdUser())
+                .orElseThrow(() -> new UnauthorizedException("Token invalido"));
 
         List<Rol> roles = rolPersistencePort.rolesPorUsuario(userAuth.getId());
         List<String> rolesString = roles.stream()
@@ -109,8 +95,36 @@ public class AuthenticationUseCase implements AuthenticationServicePort {
 
         refreshTokenPersistencePort.save(newRefreshToken);
         return new Token(accessToken, newRefreshToken.getRefreshToken(), "Bearer");
-        //return new Token(accessToken, newRefreshToken.getRefreshToken(), "Bearer", userAuth.getUsername());
+    }
 
+    @Override
+    public void logout(String refreshToken) {
+        RefreshToken storedToken = resolveStoredToken(refreshToken);
+        refreshTokenPersistencePort.revokeAllByUserId(storedToken.getIdUser());
+    }
+
+    private RefreshToken resolveStoredToken(String refreshToken) {
+        String[] arrayRefreshToken = splitRefreshToken(refreshToken);
+        String secretToken = arrayRefreshToken[0];
+        String publicToken = arrayRefreshToken[1];
+        RefreshToken token = refreshTokenPersistencePort.findByTokenId(publicToken)
+                .orElseThrow(() -> new UnauthorizedException("Refresh token invalido"));
+
+        if (!tokenProviderPort.matchesRefreshSecret(secretToken, token.getRefreshTokenHash())) {
+            throw new UnauthorizedException("Refresh token invalido");
+        }
+        return token;
+    }
+
+    private String[] splitRefreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new UnauthorizedException("Refresh token invalido");
+        }
+        String[] parts = refreshToken.split("\\.", 2);
+        if (parts.length != 2 || parts[0].isBlank() || parts[1].isBlank()) {
+            throw new UnauthorizedException("Refresh token invalido");
+        }
+        return parts;
     }
 
 

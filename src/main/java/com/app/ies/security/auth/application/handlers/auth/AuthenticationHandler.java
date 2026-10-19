@@ -10,4 +10,6 @@ public interface AuthenticationHandler {
 
     LoginResponse refreshToken(String refreshToken);
 
+    void logout(String refreshToken);
+
 }

@@ -9,4 +9,6 @@ public interface AuthenticationServicePort {
 
     Token refreshToken(String refreshToken);
 
+    void logout(String refreshToken);
+
 }
