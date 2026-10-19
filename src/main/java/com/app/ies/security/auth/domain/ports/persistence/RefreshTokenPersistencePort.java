@@ -11,4 +11,10 @@ public interface RefreshTokenPersistencePort {
 
     Optional<RefreshToken> findByTokenId(String tokenId);
 
+    boolean consume(Long id);
+
+    void revoke(Long id);
+
+    void revokeAllByUserId(Long userId);
+
 }

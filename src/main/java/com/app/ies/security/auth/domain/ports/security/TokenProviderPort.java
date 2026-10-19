@@ -16,4 +16,6 @@ public interface TokenProviderPort {
 
     RefreshToken getRefreshToken(Long userId);
 
+    boolean matchesRefreshSecret(String secret, String hash);
+
 }

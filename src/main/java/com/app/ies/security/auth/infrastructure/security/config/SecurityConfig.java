@@ -84,7 +84,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( requests ->
                     requests.requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/auth/refresh").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/auth/logout").permitAll()
                             .requestMatchers(HttpMethod.GET, "/funcionalidad/funcionalidadesPorRolAplicacion").permitAll()
                             // La página de login (usada por el flujo Authorization Code) es pública.
                             .requestMatchers("/login", "/error").permitAll()

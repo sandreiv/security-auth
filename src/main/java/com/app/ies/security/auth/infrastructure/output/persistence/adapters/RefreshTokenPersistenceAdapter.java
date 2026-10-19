@@ -7,7 +7,9 @@ import com.app.ies.security.auth.infrastructure.output.persistence.mappers.Refre
 import com.app.ies.security.auth.infrastructure.output.persistence.repositories.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -25,5 +27,23 @@ public class RefreshTokenPersistenceAdapter implements RefreshTokenPersistencePo
     @Override
     public Optional<RefreshToken> findByTokenId(String tokenId) {
         return refreshTokenRepository.findByTokenId(tokenId).map(RefreshTokenMapper::toModel);
+    }
+
+    @Override
+    @Transactional
+    public boolean consume(Long id) {
+        return refreshTokenRepository.consume(id, LocalDateTime.now()) == 1;
+    }
+
+    @Override
+    @Transactional
+    public void revoke(Long id) {
+        refreshTokenRepository.revoke(id, LocalDateTime.now());
+    }
+
+    @Override
+    @Transactional
+    public void revokeAllByUserId(Long userId) {
+        refreshTokenRepository.revokeAllByIdUser(userId, LocalDateTime.now());
     }
 }
