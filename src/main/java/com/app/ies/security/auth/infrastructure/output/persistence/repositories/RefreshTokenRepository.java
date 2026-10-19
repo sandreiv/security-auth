@@ -16,24 +16,24 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE RefreshTokenEntity r
-            SET r.hasRevoked = 'S', r.lastUsedAt = :now, r.fechaCambio = :now
-            WHERE r.id = :id AND r.hasRevoked = 'N'
+            SET r.hasRevoked = '1', r.lastUsedAt = :now, r.fechaCambio = :now
+            WHERE r.id = :id AND r.hasRevoked = '0'
             """)
     int consume(@Param("id") Long id, @Param("now") LocalDateTime now);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE RefreshTokenEntity r
-            SET r.hasRevoked = 'S', r.fechaCambio = :now
-            WHERE r.idUser = :idUser AND r.hasRevoked = 'N'
+            SET r.hasRevoked = '1', r.fechaCambio = :now
+            WHERE r.idUser = :idUser AND r.hasRevoked = '0'
             """)
     int revokeAllByIdUser(@Param("idUser") Long idUser, @Param("now") LocalDateTime now);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE RefreshTokenEntity r
-            SET r.hasRevoked = 'S', r.fechaCambio = :now
-            WHERE r.id = :id AND r.hasRevoked = 'N'
+            SET r.hasRevoked = '1', r.fechaCambio = :now
+            WHERE r.id = :id AND r.hasRevoked = '0'
             """)
     int revoke(@Param("id") Long id, @Param("now") LocalDateTime now);
 

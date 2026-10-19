@@ -19,7 +19,7 @@ public class RefreshTokenMapper {
                 .tokenId(refreshToken.getTokenId())
                 .refreshTokenHash(refreshToken.getRefreshTokenHash())
                 .expiresAt(refreshToken.getExpiresAt())
-                .hasRevoked(Boolean.TRUE.equals(refreshToken.getHasRevoked()) ? "S" : "N")
+                .hasRevoked(Boolean.TRUE.equals(refreshToken.getHasRevoked()) ? "1" : "0")
                 .idUser(refreshToken.getIdUser())
                 .lastUsedAt(lastUsedAt)
                 .registradoPor(refreshToken.getIdUser() != null
@@ -37,7 +37,7 @@ public class RefreshTokenMapper {
                 refreshTokenEntity.getRefreshTokenHash(),
                 refreshTokenEntity.getExpiresAt(),
                 refreshTokenEntity.getLastUsedAt(),
-                "S".equalsIgnoreCase(refreshTokenEntity.getHasRevoked()),
+                "1".equals(refreshTokenEntity.getHasRevoked()),
                 refreshTokenEntity.getIdUser()
         );
     }

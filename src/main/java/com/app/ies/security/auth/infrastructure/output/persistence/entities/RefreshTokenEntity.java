@@ -46,7 +46,7 @@ public class RefreshTokenEntity {
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         if (hasRevoked == null) {
-            hasRevoked = "N";
+            hasRevoked = "0";
         }
         if (lastUsedAt == null) {
             lastUsedAt = now;
