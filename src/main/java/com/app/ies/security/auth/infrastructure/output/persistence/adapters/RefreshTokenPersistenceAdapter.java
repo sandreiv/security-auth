@@ -1,5 +1,6 @@
 package com.app.ies.security.auth.infrastructure.output.persistence.adapters;
 
+import com.app.ies.security.auth.domain.ColombiaTime;
 import com.app.ies.security.auth.domain.models.RefreshToken;
 import com.app.ies.security.auth.domain.ports.persistence.RefreshTokenPersistencePort;
 import com.app.ies.security.auth.infrastructure.output.persistence.entities.RefreshTokenEntity;
@@ -32,18 +33,34 @@ public class RefreshTokenPersistenceAdapter implements RefreshTokenPersistencePo
     @Override
     @Transactional
     public boolean consume(Long id) {
-        return refreshTokenRepository.consume(id, LocalDateTime.now()) == 1;
+        Optional<RefreshTokenEntity> locked = refreshTokenRepository.lockById(id);
+        if (locked.isEmpty() || !"0".equals(locked.get().getHasRevoked())) {
+            return false;
+        }
+        markRevoked(locked.get(), true);
+        return true;
     }
 
     @Override
     @Transactional
     public void revoke(Long id) {
-        refreshTokenRepository.revoke(id, LocalDateTime.now());
+        refreshTokenRepository.lockById(id).ifPresent(entity -> markRevoked(entity, false));
     }
 
     @Override
     @Transactional
     public void revokeAllByUserId(Long userId) {
-        refreshTokenRepository.revokeAllByIdUser(userId, LocalDateTime.now());
+        refreshTokenRepository.findByIdUserAndHasRevoked(userId, "0")
+                .forEach(entity -> markRevoked(entity, false));
+    }
+
+    private void markRevoked(RefreshTokenEntity entity, boolean touchLastUsed) {
+        LocalDateTime now = ColombiaTime.now();
+        entity.setHasRevoked("1");
+        if (touchLastUsed) {
+            entity.setLastUsedAt(now);
+        }
+        entity.setFechaCambio(now);
+        refreshTokenRepository.save(entity);
     }
 }

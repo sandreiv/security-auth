@@ -1,6 +1,7 @@
 package com.app.ies.security.auth.infrastructure.output.persistence.entities;
 
 
+import com.app.ies.security.auth.domain.ColombiaTime;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,7 +45,7 @@ public class RefreshTokenEntity {
 
     @PrePersist
     public void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = ColombiaTime.now();
         if (hasRevoked == null) {
             hasRevoked = "0";
         }

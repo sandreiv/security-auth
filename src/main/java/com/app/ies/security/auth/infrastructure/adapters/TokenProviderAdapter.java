@@ -1,5 +1,6 @@
 package com.app.ies.security.auth.infrastructure.adapters;
 
+import com.app.ies.security.auth.domain.ColombiaTime;
 import com.app.ies.security.auth.domain.models.RefreshToken;
 import com.app.ies.security.auth.domain.models.UserAuth;
 import com.app.ies.security.auth.domain.ports.security.TokenProviderPort;
@@ -15,7 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.HexFormat;
 import java.util.List;
@@ -80,13 +80,13 @@ public class TokenProviderAdapter implements TokenProviderPort {
         String refreshToken = String.format("%s.%s", secretUUID, publicUUID);
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(expirationRefreshToken);
-        LocalDateTime createdAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
+        LocalDateTime createdAt = LocalDateTime.ofInstant(now, ColombiaTime.ZONE);
         return new RefreshToken(
                 null,
                 publicUUID,
                 refreshToken,
                 hashSecretRefreshToken,
-                LocalDateTime.ofInstant(expiration, ZoneId.systemDefault()),
+                LocalDateTime.ofInstant(expiration, ColombiaTime.ZONE),
                 createdAt,
                 false,
                 userId

@@ -2,6 +2,7 @@ package com.app.ies.security.auth.infrastructure.output.persistence.mappers;
 
 
 
+import com.app.ies.security.auth.domain.ColombiaTime;
 import com.app.ies.security.auth.domain.models.RefreshToken;
 import com.app.ies.security.auth.infrastructure.output.persistence.entities.RefreshTokenEntity;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 public class RefreshTokenMapper {
 
     public static RefreshTokenEntity toEntity(RefreshToken refreshToken) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = ColombiaTime.now();
         LocalDateTime lastUsedAt = refreshToken.getLastUsedAt() != null
                 ? refreshToken.getLastUsedAt()
                 : now;

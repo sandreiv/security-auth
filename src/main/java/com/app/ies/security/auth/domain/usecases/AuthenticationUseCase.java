@@ -1,6 +1,7 @@
 package com.app.ies.security.auth.domain.usecases;
 
 
+import com.app.ies.security.auth.domain.ColombiaTime;
 import com.app.ies.security.auth.domain.api.AuthenticationServicePort;
 import com.app.ies.security.auth.domain.exceptions.AccessDeniedException;
 import com.app.ies.security.auth.domain.exceptions.UnauthorizedException;
@@ -15,7 +16,6 @@ import com.app.ies.security.auth.domain.ports.persistence.UserAuthPersistencePor
 import com.app.ies.security.auth.domain.ports.security.PasswordEncoderPort;
 import com.app.ies.security.auth.domain.ports.security.TokenProviderPort;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -70,7 +70,7 @@ public class AuthenticationUseCase implements AuthenticationServicePort {
     public Token refreshToken(String refreshToken) {
         RefreshToken storedToken = resolveStoredToken(refreshToken);
 
-        if (storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (storedToken.getExpiresAt().isBefore(ColombiaTime.now())) {
             throw new UnauthorizedException("Refresh token invalido");
         }
 
